@@ -386,6 +386,13 @@ html{-webkit-text-size-adjust:100%}
 #map{touch-action:none}
 #tabbar{display:none}
 .phoneback{display:none}
+/* On an iPhone the app is pinned to the exact edges of the screen, so only the
+   page inside scrolls: the tab bar can never slide off the bottom and the back
+   bar stays at the top. (Screen-height units disagree between Safari and a
+   Home Screen app; fixed edges don't.) */
+html.phone,html.phone body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.phone #app{position:fixed;top:0;right:0;bottom:0;left:0;height:auto}
+html.phone .page{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 /* the status bar: pages scroll beneath a soft cover, the map runs right up to it */
 html.phone body::before{content:'';position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);
   background:rgba(5,7,12,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:40;pointer-events:none}
@@ -718,7 +725,7 @@ const PAGE_SRC=document.getElementById('bundle')?null:'<!DOCTYPE html>\n'+docume
    Everything is stored in this browser. Back up regularly.
    =================================================================== */
 
-const VERSION = '1.19.1';
+const VERSION = '1.19.2';
 /* 1.x  the atlas itself — map, systems, worlds, photos
    .7   field guide, survey ticking, info, landmark labels
    .8   tilted projection, landmark labels, unplaced systems flagged
@@ -746,7 +753,9 @@ const VERSION = '1.19.1';
    .19  installable as a Home Screen app (with sw.js, manifest and icons
         beside it); Restore also loads an iPhone copy
    .19.1 iPhone: fills the whole screen, no buttons over photos (tap to look,
-        double-tap to replace), round planets in the system list            */
+        double-tap to replace), round planets in the system list
+   .19.2 iPhone: the app is pinned to the screen edges, so the tab bar and the
+        back bar stay put                                                   */
 
 const RES_NAME={
  'Al':'Aluminium','Ar':'Argon','Ag':'Silver','Au':'Gold','Be':'Beryllium','C6Hn':'Benzene',
