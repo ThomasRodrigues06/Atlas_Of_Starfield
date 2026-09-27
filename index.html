@@ -37,7 +37,7 @@ textarea{font-family:var(--serif);resize:vertical;min-height:5.5rem;line-height:
 select{font-family:var(--sans);font-size:14px}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-#app{height:100%;display:flex;flex-direction:column}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column}
 #nav{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--rule);
   background:var(--field);flex-shrink:0}
 #nav{overflow-x:auto;scrollbar-width:none}
@@ -386,12 +386,17 @@ html{-webkit-text-size-adjust:100%}
 #map{touch-action:none}
 #tabbar{display:none}
 .phoneback{display:none}
-html.phone #app{padding-top:env(safe-area-inset-top)}
+/* the status bar: pages scroll beneath a soft cover, the map runs right up to it */
+html.phone body::before{content:'';position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);
+  background:rgba(5,7,12,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:40;pointer-events:none}
+html.phone.onmap body::before{background:linear-gradient(rgba(5,7,12,.55),rgba(5,7,12,0));
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+html.phone #mapctl{top:calc(env(safe-area-inset-top) + .5rem)}
 html.phone #nav{display:none}
 html.phone #tabbar{display:flex;flex-shrink:0;border-top:1px solid var(--rule);
   background:rgba(9,13,22,.98);padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  min-height:56px;padding:6px 0 5px;color:var(--faint);font-family:var(--sans);font-size:11px;letter-spacing:.05em;
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-height:50px;padding:5px 0 3px;color:var(--faint);font-family:var(--sans);font-size:11px;letter-spacing:.05em;
   -webkit-tap-highlight-color:transparent}
 #tabbar svg{width:25px;height:25px}
 #tabbar button.on{color:var(--gold)}
@@ -405,13 +410,15 @@ html.phone #mapnote .mouse{display:none}
 html.phone #mapnote .touch{display:block}
 html.phone #mapnote span:last-child{display:none}
 html.phone #mapctl button{min-height:38px;min-width:40px}
-html.phone .inner{padding:1rem 1.1rem 3rem}
+html.phone .inner{padding:calc(env(safe-area-inset-top) + 1rem) 1.1rem 3rem}
+html.phone .phoneback + .inner{padding-top:1rem}
 html.phone .title{font-size:1.9rem}
-html.phone .back:not(.phoneback){position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:.3rem;
+html.phone .back:not(.phoneback){position:sticky;top:env(safe-area-inset-top);z-index:6;display:flex;align-items:center;gap:.3rem;
   width:calc(100% + 2.2rem);margin:-1rem -1.1rem .7rem;padding:.8rem 1.1rem;min-height:50px;
   font-size:15.5px;color:var(--ink);background:rgba(5,7,12,.95);border-bottom:1px solid var(--rule-soft);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-html.phone .phoneback{display:flex;align-items:center;position:sticky;top:0;z-index:6;width:100%;
+html.phone .phoneback{display:flex;align-items:center;position:sticky;top:env(safe-area-inset-top);z-index:6;width:100%;
+  margin-top:env(safe-area-inset-top);
   padding:.8rem 1.1rem;min-height:50px;font-size:15.5px;color:var(--ink);background:rgba(5,7,12,.95);
   border-bottom:1px solid var(--rule-soft);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 html.phone .row{min-height:52px;padding:.8rem 1.1rem;align-items:center}
@@ -419,7 +426,13 @@ html.phone .row .nm{font-size:1.06rem}
 html.phone .row .mt{font-size:13px;text-align:right}
 html.phone .qrow{min-height:48px}
 html.phone .qinfo{width:44px}
-html.phone .slot .cp{padding:.35rem .6rem;font-size:12px}
+/* photos on a phone: no buttons on top. Tap to look, double-tap to replace,
+   tap an empty box to add one. Recentring stays a computer job. */
+html.phone .slot .cp,html.phone .slot .ph code{display:none}
+html.phone .slot{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html.phone .slot:not(:has(img)) .ph::before{content:'+';display:block;font-size:22px;line-height:1;
+  color:var(--dim);margin-bottom:.35rem}
+html.phone .sbar{top:env(safe-area-inset-top)}
 html.phone #lbclose{top:calc(env(safe-area-inset-top) + .8rem);padding:.55rem 1rem;font-size:14px}
 /* search screen */
 .sbar{position:sticky;top:0;z-index:5;background:var(--void);padding:.9rem 0 .7rem;margin-top:.4rem}
@@ -536,7 +549,8 @@ h3.sys .inlink{font-family:var(--sans);font-size:13px}
 .spot{outline:3px solid transparent;outline-offset:6px;animation:spotblink 1.9s ease .35s 1}
 @media (prefers-reduced-motion:reduce){ .spot{animation:none;outline-color:var(--gold)} }
 
-@media (hover:none){ .slot .cp{opacity:1} .slot{min-height:110px} }
+@media (hover:none){ .slot .cp{opacity:1} .slot{min-height:110px}
+  .ball.slot,.facimg.slot,.slot.orb{min-height:0} }
 @media (max-width:860px){
   #galaxy{flex-direction:column}
   #rail{width:100%;border-left:none;border-top:1px solid var(--rule);max-height:46%}
@@ -704,7 +718,7 @@ const PAGE_SRC=document.getElementById('bundle')?null:'<!DOCTYPE html>\n'+docume
    Everything is stored in this browser. Back up regularly.
    =================================================================== */
 
-const VERSION = '1.19.0';
+const VERSION = '1.19.1';
 /* 1.x  the atlas itself — map, systems, worlds, photos
    .7   field guide, survey ticking, info, landmark labels
    .8   tilted projection, landmark labels, unplaced systems flagged
@@ -730,7 +744,9 @@ const VERSION = '1.19.0';
         also finds quests, factions and log entries; "Make iPhone copy" bakes
         your log and every photo into one file for the phone
    .19  installable as a Home Screen app (with sw.js, manifest and icons
-        beside it); Restore also loads an iPhone copy                       */
+        beside it); Restore also loads an iPhone copy
+   .19.1 iPhone: fills the whole screen, no buttons over photos (tap to look,
+        double-tap to replace), round planets in the system list            */
 
 const RES_NAME={
  'Al':'Aluminium','Ar':'Argon','Ag':'Silver','Au':'Gold','Be':'Beryllium','C6Hn':'Benzene',
@@ -1098,6 +1114,12 @@ document.addEventListener('click',e=>{
     picking=s; picker.click(); return;
   }
   const img=s.querySelector('img');
+  if(isPhone()&&img){
+    /* phone: one tap looks at it, two quick taps replace it */
+    if(s._tap){ clearTimeout(s._tap); s._tap=null; picking=s; picker.click(); return; }
+    s._tap=setTimeout(()=>{ s._tap=null; openLightbox(s); },280);
+    return;
+  }
   if(img){ openLightbox(s); return; }         // filled → look at it
   picking=s; picker.click();                  // empty → add one
 });
@@ -1945,6 +1967,7 @@ const TAB_FOR={galaxy:'map',worlds:'worlds',searchv:'search',log:'log',more:'mor
 let phoneTab='map';
 const navBtn=n=>document.querySelector(`#nav [data-nav="${n}"]`);
 function phoneSync(id){
+  document.documentElement.classList.toggle('onmap',id==='galaxy');
   if(TAB_FOR[id]) phoneTab=TAB_FOR[id];
   document.querySelectorAll('#tabbar [data-tab]').forEach(b=>{
     const on=b.dataset.tab===phoneTab;
@@ -1986,6 +2009,7 @@ function renderMore(){
       ${row('trivia','Trivia','Records and oddities from the survey data')}
       ${row('info','Info','What is in here, where it came from, settings')}
     </div>
+    <p class="mnote">Tap a photo to see it full screen. Double-tap to replace it. Tap an empty box to add one.</p>
     <h2 class="sec">Your atlas</h2>
     ${PHONE&&BUNDLE?`<p class="mnote">iPhone copy made ${day(BUNDLE.made)} on your computer, with ${nPhotos} photo${nPhotos===1?'':'s'} inside.
       The computer's atlas is the master: anything you change here stays on this phone until you put a newer copy in its place.</p>`:''}
